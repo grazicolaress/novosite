@@ -15,7 +15,7 @@ def login(request):
 
         if user:
             login_django(request,user)
-            return HttpResponse('Autenticado!')
+            return render(request, 'usuarios/home.html')
         
         else:
             return HttpResponse('E-mail ou senha inválidos!')
@@ -37,16 +37,28 @@ def cadastro(request):
             user=User.objects.create_user(username=username, email=email, password=password, first_name=first_name)
             user.save()
 
-            return HttpResponse('Usuário cadastrado com sucesso!')
+            return render(request, 'usuarios/login.html')
 
 def home(request):
-    return render(request, 'usuarios/home.html')
+    if request.user.is_authenticated:
+        return render(request, 'usuarios/home.html')
+    else:
+        return (HttpResponse("Faça o login para acessar!"))
 
 def lancar(request):
-    return render(request, 'usuarios/lancar.html')
+    if request.user.is_authenticated:
+        return render(request, 'usuarios/lancar.html')
+    else:
+        return(HttpResponse("Faça o login para acessar!"))
 
 def alterar(request):
-    return render(request, 'usuarios/alterar.html')
+    if request.user.is_authenticated:
+        return render(request, 'usuarios/alterar.html')
+    else:
+        return(HttpResponse("Faça o login para acessar!"))
 
 def visualizar(request):
-    return render(request, 'usuarios/visualizar.html')
+    if request.user.is_authenticated:
+        return render(request, 'usuarios/visualizar.html')
+    else:
+        return(HttpResponse("Faça o login para acessar!"))
