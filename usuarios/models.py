@@ -1,3 +1,9 @@
 from django.db import models
 
-# Create your models here.
+class Nota(models.Model):
+    nome_aluno
+    disciplina
+    nota_atividades
+    nota_trabalho
+    nota_prova
+    media

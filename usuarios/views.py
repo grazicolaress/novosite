@@ -25,7 +25,7 @@ def logout(request):
         logout_django(request)
         return render(request, 'usuarios/login.html')
     else:
-
+        return HttpResponse('Você não acessou sua conta ainda!')
         
 def cadastro(request):
     if request.method=="GET":
