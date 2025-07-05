@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django, logout as logout_django
@@ -58,10 +59,10 @@ def lancar(request):
         if request.user.is_authenticated:
             return render(request, 'usuarios/lancar.html')
         else:
-            return(HttpResponse("Faça o login para acessar!"))
+            return HttpResponse("Faça o login para acessar!")
     else:
         nota=Nota()
-        nota.nome_aluno = request.user_first_name
+        nota.nome_aluno = request.user.first_name
         nota.disciplina = request.POST.get('disciplina')
         nota.nota_atividades = request.POST.get('nota_atividades')
         nota.nota_trabalho = request.POST.get('nota_trabalho')
@@ -77,13 +78,47 @@ def lancar(request):
             return render(request, 'usuarios/home.html')
 
 def alterar(request):
-    if request.user.is_authenticated:
-        return render(request, 'usuarios/alterar.html')
-    else:
-        return(HttpResponse("Faça o login para acessar!"))
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            lista_notas= Nota.objects.all()
+            dicionario_notas={'lista_notas':lista_notas}
+            return render(request, 'usuarios/alterar.html', dicionario_notas)
+        else:
+            return(HttpResponse("Faça o login para acessar!"))
 
 def visualizar(request):
-    if request.user.is_authenticated:
-        return render(request, 'usuarios/visualizar.html')
+    if request.method =="GET":
+        if request.user.is_authenticated:
+            lista_notas = Nota.objects.all()
+            dicionario_notas = {'lista_notas': lista_notas}
+            return render(request, 'usuarios/visualizar.html', dicionario_notas)
+        else:
+            return(HttpResponse("Faça o login para acessar!"))
     else:
-        return(HttpResponse("Faça o login para acessar!"))
+        disciplina = request.POST.get('disciplina')
+        if disciplina == "Todas as disciplinas":
+            lista_notas= Nota.objects.all()
+            dicionario_notas = {'lista_notas': lista_notas}
+            return render(request, 'usuarios/visualizar.html', dicionario_notas)
+        else:
+            lista_notas= Nota.objects.filter(disicplina=disciplina)
+            dicionario_notas_filtradas = {'lista_notas':lista_notas}
+            return render(request, 'usuarios/visualizar.html', dicionario_notas_filtradas)
+        
+def excluir_verificacao(request, pk):
+    if request.method=="GET":
+        if request.user.is_authenticated:
+            lista_notas= Nota.objects.get(pk=pk)
+            dicionario_notas={'lista_notas':lista_notas}
+            return render(request, 'usuarios/excluir.html', dicionario_notas)
+        else:
+            return HttpResponse("Faça o login para acessar!")
+        
+def excluir(request, pk):
+    if request.method=="GET":
+        if request.user.is_authenticated:
+            disciplina_selecionada= Nota.objects.get(pk=pk)
+            disciplina_selecionada.delete()
+            return HttpResponseRedirect(reverse('alterar'))
+        else:
+            return HttpResponse("Faça o login para acessar!")
